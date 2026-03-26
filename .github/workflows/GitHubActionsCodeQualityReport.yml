@@ -1,0 +1,49 @@
+name: Code Quality Report
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday 2 AM
+
+jobs:
+  quality-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+      
+      - name: Install tools
+        run: |
+          pip install uv
+          uv pip install ruff mypy pylint radon
+      
+      - name: Code complexity analysis
+        run: |
+          radon cc model/ api/ repo/ -s -a > complexity-report.txt
+          cat complexity-report.txt
+        continue-on-error: true
+      
+      - name: Maintainability index
+        run: radon mi model/ api/ repo/ -s > maintainability-report.txt
+          cat maintainability-report.txt
+        continue-on-error: true
+      
+      - name: Generate ruff report
+        run: ruff check . --output-format=json > ruff-report.json || true
+      
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-quality-reports
+          path: |
+            complexity-report.txt
+            maintainability-report.txt
+            ruff-report.json

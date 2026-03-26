@@ -1,0 +1,27 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+      
+      - name: Build and push Docker image (optional)
+        run: echo "Configure Docker build here"
+      
+      - name: Deploy to server (optional)
+        run: echo "Configure deployment command here"
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}

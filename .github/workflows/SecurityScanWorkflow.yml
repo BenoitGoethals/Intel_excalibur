@@ -1,0 +1,38 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 0'  # Weekly on Sunday 3 AM
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+      
+      - name: Install bandit
+        run: pip install bandit
+      
+      - name: Bandit security check
+        run: bandit -r model/ api/ repo/ -f json -o bandit-report.json || true
+      
+      - name: Dependency vulnerability scan
+        run: |
+          pip install pip-audit
+          python -m pip_audit --desc || true
+      
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: bandit-report.json
