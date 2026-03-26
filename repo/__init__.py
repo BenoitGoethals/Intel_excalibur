@@ -18,6 +18,7 @@ from repo.intelligence_collector_repo import intelligence_collector_repo, Intell
 from repo.ci_agent_repo import ci_agent_repo, CIAgentRepo
 from repo.all_source_analyst_repo import all_source_analyst_repo, AllSourceAnalystRepo
 from repo.intel_case_repo import intel_case_repo, IntelCaseRepo
+from repo.photo_repo import photo_repo, PhotoRepo
 from repo.standalone_repo import (
     mas_int_repo, MasIntRepo,
     med_int_repo, MedIntRepo,
@@ -67,4 +68,5 @@ __all__ = [
     "operator_intel_repo", "OperatorIntelRepo",
     "gov_source_repo", "GovSourceRepo",
     "report_data_repo", "ReportDataRepo",
+    "photo_repo", "PhotoRepo",
 ]

@@ -7,7 +7,7 @@ from api.routes import (
     human_source, operator_intel, gov_source, report_data,
     intelligence_officer, intelligence_analyst, intelligence_collector,
     ci_agent, all_source_analyst,
-    intel_case,
+    intel_case, photos,
 )
 
 all_routers = [
@@ -42,4 +42,5 @@ all_routers = [
     ci_agent.router,
     all_source_analyst.router,
     intel_case.router,
+    photos.router,
 ]

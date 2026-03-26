@@ -34,6 +34,8 @@ _DRIVER   = os.getenv("MSSQL_DRIVER",   "ODBC+Driver+17+for+SQL+Server")
 
 _auth = f"{_USER}:{_PASSWORD}@" if (_USER and _PASSWORD) else ""
 
+_FALLBACK_SQLITE = "sqlite:///intel_excalibur.db"
+
 DATABASE_URL: str = os.getenv(
     "DATABASE_URL",
     f"mssql+pyodbc://{_auth}{_SERVER}/{_DATABASE}?driver={_DRIVER}",
@@ -50,18 +52,26 @@ _SessionLocal: sessionmaker | None = None
 def _get_engine() -> Engine:
     global _engine, _SessionLocal
     if _engine is None:
-        _engine = create_engine(
-            DATABASE_URL,
-            fast_executemany=True,   # MSSQL bulk-insert optimisation
-            pool_pre_ping=True,      # reconnect after dropped idle connections
-            pool_size=10,
-            max_overflow=20,
-        )
+        url = DATABASE_URL
+        try:
+            _engine = create_engine(
+                url,
+                fast_executemany=True,   # MSSQL bulk-insert optimisation
+                pool_pre_ping=True,      # reconnect after dropped idle connections
+                pool_size=10,
+                max_overflow=20,
+            )
+            # Force a connection attempt to detect missing ODBC drivers early
+            _engine.connect().close()
+        except Exception:
+            print(f"[database] MSSQL unavailable, falling back to SQLite ({_FALLBACK_SQLITE})")
+            _engine = create_engine(_FALLBACK_SQLITE)
 
-        @event.listens_for(_engine, "connect")
-        def _enforce_manual_commit(dbapi_conn, _):
-            """Disable implicit autocommit so every session is transactional."""
-            dbapi_conn.autocommit = False
+        if url.startswith("mssql"):
+            @event.listens_for(_engine, "connect")
+            def _enforce_manual_commit(dbapi_conn, _):
+                """Disable implicit autocommit so every session is transactional."""
+                dbapi_conn.autocommit = False
 
         _SessionLocal = sessionmaker(
             autocommit=False,

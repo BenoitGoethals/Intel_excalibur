@@ -12,11 +12,13 @@ const CATEGORY_ICONS: Record<string, string> = {
   'Medical & Tech':      '⚕',
   'Social & News':       '📰',
   'People & Sources':    '🧑',
+  Cases:                 '📁',
   Operations:            '⚔',
   Management:            '📋',
 };
 
-// Categories that belong to the Investigations menu
+// Categories with their own separate menus
+const CASES_CATEGORY = 'Cases';
 const INVESTIGATION_CATEGORY = 'Investigations';
 
 // ── Grouped mega-dropdown (shows category sections inside) ────────────────
@@ -146,12 +148,15 @@ export function TopNav() {
   const toggle = (key: string) => setOpen((prev) => (prev === key ? null : key));
   const close = () => setOpen(null);
 
-  // Split entities into "Intel" (all except Investigations) and "Investigations"
+  // Split entities into menus
   const allGroups = groupedEntities();
   const intelGroups: Record<string, EntityConfig[]> = {};
   for (const [cat, entities] of Object.entries(allGroups)) {
-    if (cat !== INVESTIGATION_CATEGORY) intelGroups[cat] = entities;
+    if (cat !== INVESTIGATION_CATEGORY && cat !== CASES_CATEGORY) intelGroups[cat] = entities;
   }
+  const casesEntities = ENTITY_CONFIGS.filter(
+    (e) => e.category === CASES_CATEGORY,
+  );
   const investigationEntities = ENTITY_CONFIGS.filter(
     (e) => e.category === INVESTIGATION_CATEGORY,
   );
@@ -175,6 +180,16 @@ export function TopNav() {
           Dashboard
         </NavLink>
 
+        {/* All Intel — consolidated view */}
+        <NavLink
+          to="/all-intel"
+          className={({ isActive }) => `topmenu-btn ${isActive ? 'has-active' : ''}`}
+          onClick={close}
+        >
+          <span className="tmenu-icon">📊</span>
+          All Intel
+        </NavLink>
+
         {/* Intel — one menu, all entity categories as sections */}
         <MegaDropdown
           label="Intel"
@@ -182,6 +197,16 @@ export function TopNav() {
           groups={intelGroups}
           isOpen={open === 'intel'}
           onToggle={() => toggle('intel')}
+          onClose={close}
+        />
+
+        {/* Cases — separate menu */}
+        <SimpleDropdown
+          label="Cases"
+          icon="📁"
+          entities={casesEntities}
+          isOpen={open === 'cases'}
+          onToggle={() => toggle('cases')}
           onClose={close}
         />
 

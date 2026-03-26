@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { ApiRecord } from '../api/client';
 import type { EntityConfig } from '../config/entities';
 
@@ -8,6 +9,7 @@ interface Props {
   error: string | null;
   onEdit: (row: ApiRecord) => void;
   onDelete: (row: ApiRecord) => void;
+  onPhotos?: (row: ApiRecord) => void;
 }
 
 function cellValue(val: unknown): string {
@@ -20,8 +22,10 @@ function cellValue(val: unknown): string {
   return s.length > 60 ? s.slice(0, 57) + '…' : s;
 }
 
-export function EntityTable({ config, rows, loading, error, onEdit, onDelete }: Props) {
+export function EntityTable({ config, rows, loading, error, onEdit, onDelete, onPhotos }: Props) {
+  const navigate = useNavigate();
   const columns = config.fields.filter((f) => f.tableColumn);
+  const isCase = config.key === 'intel-cases';
 
   if (loading) {
     return (
@@ -67,6 +71,24 @@ export function EntityTable({ config, rows, loading, error, onEdit, onDelete }: 
               ))}
               <td>
                 <div className="row-actions">
+                  {isCase && (
+                    <button
+                      className="btn-icon view"
+                      onClick={() => navigate(`/entity/intel-cases/${row.id}`)}
+                      title="View case & linked intel"
+                    >
+                      ⬈
+                    </button>
+                  )}
+                  {onPhotos && (
+                    <button
+                      className="btn-icon photos"
+                      onClick={() => onPhotos(row)}
+                      title="Photos"
+                    >
+                      📷
+                    </button>
+                  )}
                   <button
                     className="btn-icon edit"
                     onClick={() => onEdit(row)}

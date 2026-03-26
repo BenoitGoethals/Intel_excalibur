@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { api, type ApiRecord } from '../api/client';
 import type { EntityConfig, FieldDef } from '../config/entities';
+import { LinkedIntelField } from './LinkedIntelField';
+import { PhotoUploadField } from './PhotoUploadField';
 
 // ── Remote option shape ───────────────────────────────────────────────────
 interface RemoteOption { id: string; label: string; }
@@ -99,6 +101,7 @@ function emptyRecord(fields: FieldDef[]): ApiRecord {
     else if (f.type === 'number' || f.type === 'decimal') rec[f.name] = '';
     else if (f.type === 'tags') rec[f.name] = '';
     else if (f.type === 'remote-multiselect') rec[f.name] = [];
+    else if (f.type === 'linked-intel') rec[f.name] = [];
     else rec[f.name] = '';
   }
   return rec;
@@ -115,6 +118,8 @@ function toFormState(record: ApiRecord, fields: FieldDef[]): ApiRecord {
     } else if (f.type === 'datetime') {
       out[f.name] = v ? String(v).slice(0, 16) : '';
     } else if (f.type === 'remote-multiselect') {
+      out[f.name] = Array.isArray(v) ? v : [];
+    } else if (f.type === 'linked-intel') {
       out[f.name] = Array.isArray(v) ? v : [];
     } else {
       out[f.name] = v !== undefined && v !== null ? String(v) : '';
@@ -138,6 +143,8 @@ function fromFormState(state: ApiRecord, fields: FieldDef[]): ApiRecord {
     } else if (f.type === 'datetime') {
       out[f.name] = v ? String(v) : null;
     } else if (f.type === 'remote-multiselect') {
+      out[f.name] = Array.isArray(v) ? v : [];
+    } else if (f.type === 'linked-intel') {
       out[f.name] = Array.isArray(v) ? v : [];
     } else {
       out[f.name] = v === '' ? null : v;
@@ -183,7 +190,7 @@ export function EntityForm({ config, initial, onSave, onCancel }: Props) {
   };
 
   const isWide = (f: FieldDef) =>
-    f.type === 'textarea' || f.type === 'remote-multiselect';
+    f.type === 'textarea' || f.type === 'remote-multiselect' || f.type === 'linked-intel';
 
   return (
     <div className="modal-overlay" onClick={onCancel}>
@@ -259,8 +266,24 @@ export function EntityForm({ config, initial, onSave, onCancel }: Props) {
                     onChange={(ids) => set(f.name, ids)}
                   />
                 )}
+
+                {f.type === 'linked-intel' && (
+                  <LinkedIntelField
+                    value={Array.isArray(state[f.name]) ? (state[f.name] as { intel_type: string; intel_id: string; title: string }[]) : []}
+                    onChange={(refs) => set(f.name, refs)}
+                  />
+                )}
               </div>
             ))}
+          </div>
+
+          {/* Photo upload — available for all entities when editing */}
+          <div className="form-group full-width">
+            <label>Photos</label>
+            <PhotoUploadField
+              entityType={config.key}
+              entityId={initial ? String(initial.id) : undefined}
+            />
           </div>
 
           {error && <div className="form-error">{error}</div>}

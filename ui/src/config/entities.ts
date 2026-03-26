@@ -8,7 +8,8 @@ export type FieldType =
   | 'select'
   | 'tags'           // comma-separated list → string[]
   | 'remote-select'  // single select fetched from API → stores ID string
-  | 'remote-multiselect'; // multi-select fetched from API → stores string[]
+  | 'remote-multiselect' // multi-select fetched from API → stores string[]
+  | 'linked-intel';  // list of {intel_type, intel_id, title} references
 
 export interface FieldDef {
   name: string;
@@ -44,9 +45,34 @@ export const CATEGORY_ORDER = [
   'Medical & Tech',
   'Social & News',
   'People & Sources',
+  'Cases',
   'Investigations',
   'Operations',
   'Management',
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Intel type sources — used by the linked-intel field to pick records
+// ─────────────────────────────────────────────────────────────────────────────
+export const INTEL_SOURCES: { intelType: string; label: string; apiPath: string; nameField: string }[] = [
+  { intelType: 'HumInt',        label: 'HUMINT',              apiPath: '/api/v1/hum-int',          nameField: 'name' },
+  { intelType: 'CybInt',        label: 'CYBINT',              apiPath: '/api/v1/cyb-int',          nameField: 'name' },
+  { intelType: 'SigInt',        label: 'SIGINT',              apiPath: '/api/v1/sig-int',          nameField: 'name' },
+  { intelType: 'MasInt',        label: 'MASINT',              apiPath: '/api/v1/mas-int',          nameField: 'name' },
+  { intelType: 'GeoInt',        label: 'GEOINT',              apiPath: '/api/v1/geo-int',          nameField: 'name' },
+  { intelType: 'ImInt',         label: 'IMINT',               apiPath: '/api/v1/im-int',           nameField: 'name' },
+  { intelType: 'MedInt',        label: 'MEDINT',              apiPath: '/api/v1/med-int',          nameField: 'name' },
+  { intelType: 'TechInt',       label: 'TECHINT',             apiPath: '/api/v1/tech-int',         nameField: 'name' },
+  { intelType: 'FinancialInt',  label: 'FININT',              apiPath: '/api/v1/financial-int',    nameField: 'name' },
+  { intelType: 'CounterInt',    label: 'Counter Intel',       apiPath: '/api/v1/counter-int',      nameField: 'name' },
+  { intelType: 'OpenSourceInt', label: 'OSINT',               apiPath: '/api/v1/open-source-int',  nameField: 'name' },
+  { intelType: 'GeneralIntel',  label: 'General Intel',       apiPath: '/api/v1/general-intel',    nameField: 'name' },
+  { intelType: 'Intel',         label: 'Intel',               apiPath: '/api/v1/intel',            nameField: 'name' },
+  { intelType: 'NewsArticle',   label: 'News Article',        apiPath: '/api/v1/news-articles',    nameField: 'title' },
+  { intelType: 'SocialMedia',   label: 'Social Media',        apiPath: '/api/v1/social-media',     nameField: 'title' },
+  { intelType: 'InSum',         label: 'Intel Summary',       apiPath: '/api/v1/in-sum',           nameField: 'title' },
+  { intelType: 'SitRep',        label: 'Situation Report',    apiPath: '/api/v1/sit-rep',          nameField: 'title' },
+  { intelType: 'OperatorIntel', label: 'Operator Intel',      apiPath: '/api/v1/operator-intel',   nameField: 'name' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -488,7 +514,7 @@ export const ENTITY_CONFIGS: EntityConfig[] = [
     key: 'intel-cases',
     label: 'Intel Cases',
     apiPath: '/api/v1/intel-cases',
-    category: 'Investigations',
+    category: 'Cases',
     nameField: 'title',
     fields: [
       caseField,
@@ -535,6 +561,7 @@ export const ENTITY_CONFIGS: EntityConfig[] = [
       { name: 'conclusions', label: 'Conclusions', type: 'textarea' },
       { name: 'recommendations', label: 'Recommendations', type: 'textarea' },
       { name: 'lessons_learned', label: 'Lessons Learned', type: 'textarea' },
+      { name: 'linked_intel', label: 'Linked Intelligence', type: 'linked-intel' },
       { name: 'document_ids', label: 'Document IDs (comma-separated)', type: 'tags' },
       { name: 'tags', label: 'Tags (comma-separated)', type: 'tags' },
       { name: 'notes', label: 'Notes', type: 'textarea' },

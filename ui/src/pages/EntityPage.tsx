@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { api, type ApiRecord } from '../api/client';
 import { EntityForm } from '../components/EntityForm';
 import { EntityTable } from '../components/EntityTable';
+import { PhotoUploadField } from '../components/PhotoUploadField';
 import { getEntityByKey } from '../config/entities';
 import { useActivity } from '../hooks/useActivity';
 
@@ -18,6 +19,7 @@ export function EntityPage() {
   const [editing, setEditing] = useState<ApiRecord | undefined>();
   const [search, setSearch] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<ApiRecord | null>(null);
+  const [photosRow, setPhotosRow] = useState<ApiRecord | null>(null);
 
   const load = useCallback(async () => {
     if (!config) return;
@@ -38,6 +40,7 @@ export function EntityPage() {
     setSearch('');
     setFormOpen(false);
     setEditing(undefined);
+    setPhotosRow(null);
     load();
   }, [load]);
 
@@ -106,7 +109,7 @@ export function EntityPage() {
           <input
             className="search-input"
             type="search"
-            placeholder="Search…"
+            placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -135,6 +138,7 @@ export function EntityPage() {
           setFormOpen(true);
         }}
         onDelete={(row) => setDeleteConfirm(row)}
+        onPhotos={(row) => setPhotosRow(row)}
       />
 
       {formOpen && (
@@ -147,6 +151,24 @@ export function EntityPage() {
             setEditing(undefined);
           }}
         />
+      )}
+
+      {/* Photo modal */}
+      {photosRow && (
+        <div className="modal-overlay" onClick={() => setPhotosRow(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Photos — {displayName(photosRow)}</h2>
+              <button className="btn-icon" onClick={() => setPhotosRow(null)}>✕</button>
+            </div>
+            <div className="entity-form">
+              <PhotoUploadField
+                entityType={config.key}
+                entityId={String(photosRow.id)}
+              />
+            </div>
+          </div>
+        </div>
       )}
 
       {deleteConfirm && (

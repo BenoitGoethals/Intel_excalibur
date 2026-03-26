@@ -18,6 +18,7 @@ from model.orm.intelligence_collector_orm import IntelligenceCollectorOrm
 from model.orm.ci_agent_orm import CIAgentOrm
 from model.orm.all_source_analyst_orm import AllSourceAnalystOrm
 from model.orm.intel_case_orm import IntelCaseOrm
+from model.orm.photo_orm import PhotoOrm
 from model.orm.standalone_orm import (
     ListItemOrm, ListItemDateOrm, ListItemPhotoOrm,
     HumanSourceOrm, OperatorIntelOrm, GovSourceOrm, ReportDataOrm,
@@ -32,7 +33,7 @@ __all__ = [
     "NewsArticleOrm", "InformantOrm", "PersonOfInterestOrm",
     "IntelDocumentOrm", "IntelInvestigationFileOrm", "IntelOrm",
     "IntelligenceOfficerOrm", "IntelligenceAnalystOrm", "IntelligenceCollectorOrm",
-    "CIAgentOrm", "AllSourceAnalystOrm", "IntelCaseOrm",
+    "CIAgentOrm", "AllSourceAnalystOrm", "IntelCaseOrm", "PhotoOrm",
     "ListItemOrm", "ListItemDateOrm", "ListItemPhotoOrm",
     "HumanSourceOrm", "OperatorIntelOrm", "GovSourceOrm", "ReportDataOrm",
     "MasIntOrm", "MedIntOrm", "TechIntOrm", "SigIntOrm", "GeoIntOrm",
