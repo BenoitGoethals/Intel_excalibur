@@ -9,5 +9,5 @@ dependencies = [
     "uvicorn>=0.42.0",
     "pyodbc>=5.0.0",
     "pytest>=9.0.2",
-    "python-multipart>=0.0.22",
+    "python-multipart>=0.0.26",
 ]
